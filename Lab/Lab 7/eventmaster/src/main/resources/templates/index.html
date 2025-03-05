@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventMaster - Demo</title>
+    <style>
+        /* General Reset and Body Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9fb;
+            color: #333;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1, h2 {
+            color: #4CAF50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* Card Styling for Form and Table */
+        .card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 40px;
+        }
+
+        /* Form Styling */
+        form {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        td {
+            color: #555;
+        }
+
+        td button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 5px;
+            margin-right: 5px;
+        }
+
+        td button:hover {
+            background-color: #e53935;
+        }
+
+        /* Input Focus and Button Style */
+        input:focus, select:focus, button:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            form {
+                grid-template-columns: 1fr;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            table {
+                width: 100%;
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>EventMaster - Demo</h1>
+
+    <!-- Card for Form -->
+    <div class="card">
+        <h2>Create or Edit Event</h2>
+        <form id="eventForm">
+            <input type="hidden" id="eventId" value="">
+            <label for="title">Title:</label>
+            <input type="text" id="title" placeholder="Enter event title" required>
+
+            <label for="category">Category:</label>
+            <select id="category" required>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Educational">Educational</option>
+                <option value="Social Cause">Social Cause</option>
+            </select>
+
+            <label for="date">Date:</label>
+            <input type="date" id="date" required>
+
+            <label for="time">Time:</label>
+            <input type="time" id="time" required>
+
+            <label for="venue">Venue:</label>
+            <input type="text" id="venue" placeholder="Enter venue" required>
+
+            <label for="status">Status:</label>
+            <select id="status" required>
+                <option value="Available">Available</option>
+                <option value="Upcoming">Upcoming</option>
+                <option value="Sold Out">Sold Out</option>
+                <option value="Closed">Closed</option>
+            </select>
+
+            <label for="maxAttendees">Max Attendees:</label>
+            <input type="number" id="maxAttendees" placeholder="Enter max attendees" required>
+
+            <label for="currentAttendees">Current Attendees:</label>
+            <input type="number" id="currentAttendees" placeholder="Enter current attendees" required>
+
+            <button type="submit">Save Event</button>
+        </form>
+    </div>
+
+    <!-- Card for Event List -->
+    <div class="card">
+        <h2>Event List</h2>
+        <table id="eventTable">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Venue</th>
+                    <th>Status</th>
+                    <th>Max Attendees</th>
+                    <th>Current Attendees</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be populated dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Fetch all events and populate the table
+        async function fetchEvents() {
+            const response = await fetch('/events');
+            const events = await response.json();
+            const tbody = document.querySelector('#eventTable tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            events.forEach(event => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${event.title}</td>
+                    <td>${event.category}</td>
+                    <td>${event.date}</td>
+                    <td>${event.time}</td>
+                    <td>${event.venue}</td>
+                    <td>${event.status}</td>
+                    <td>${event.maxAttendees}</td>
+                    <td>${event.currentAttendees}</td>
+                    <td>
+                        <button onclick="editEvent(${event.id})">Edit</button>
+                        <button onclick="deleteEvent(${event.id})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Handle form submission (Create/Update Event)
+        document.getElementById('eventForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const event = {
+                title: document.getElementById('title').value,
+                category: document.getElementById('category').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                venue: document.getElementById('venue').value,
+                status: document.getElementById('status').value,
+                maxAttendees: parseInt(document.getElementById('maxAttendees').value),
+                currentAttendees: parseInt(document.getElementById('currentAttendees').value)
+            };
+
+            const eventId = document.getElementById('eventId').value;
+            const url = eventId ? `/events/edit/${eventId}` : '/events/save';
+            const method = eventId ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(event)
+            });
+
+            if (response.ok) {
+                fetchEvents(); // Refresh the event list
+                document.getElementById('eventForm').reset(); // Clear the form
+                document.getElementById('eventId').value = ''; // Reset the hidden ID field
+            }
+        });
+
+        // Edit Event
+        async function editEvent(id) {
+            const response = await fetch(`/events/${id}`);
+            const event = await response.json();
+
+            document.getElementById('eventId').value = event.id;
+            document.getElementById('title').value = event.title;
+            document.getElementById('category').value = event.category;
+            document.getElementById('date').value = event.date;
+            document.getElementById('time').value = event.time;
+            document.getElementById('venue').value = event.venue;
+            document.getElementById('status').value = event.status;
+            document.getElementById('maxAttendees').value = event.maxAttendees;
+            document.getElementById('currentAttendees').value = event.currentAttendees;
+        }
+
+        // Delete Event
+        async function deleteEvent(id) {
+            const response = await fetch(`/events/delete/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                fetchEvents(); // Refresh the event list
+            }
+        }
+
+        // Initial fetch of events
+        fetchEvents();
+    </script>
+</body>
+</html>
